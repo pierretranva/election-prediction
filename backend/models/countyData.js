@@ -1,16 +1,8 @@
 // Import mongoose library
 const mongoose = require('mongoose');
 
-// Schema for users
-const userSchema = new mongoose.Schema({
-    username: String,
-    password: String,
-    profile: mongoose.Schema.ObjectId
-
-}, { versionKey: false });
-
 // Schema for data from csv file
-const dataSchema = new mongoose.Schema({
+const countyDataSchema = new mongoose.Schema({
     year: Number,
     state_county: Number,
     inctot: Number,
@@ -99,6 +91,5 @@ const dataSchema = new mongoose.Schema({
     winner: Number
 });
 
-// Export schemas
-module.exports = mongoose.model('users', userSchema);
-module.exports = mongoose.model('data', dataSchema);
+// Export schema
+module.exports = mongoose.model('countyData', countyDataSchema);
