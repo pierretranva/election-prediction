@@ -1,5 +1,7 @@
 // Import mongoose library
-const mongoose = require('mongoose');
+
+import { Schema,mongoose } from "mongoose";
+import {geojsonDb} from "../connection.js";
 
 const crsSchema = new Schema({ type: String, properties: { name: String }});
 const polygonSchema = new Schema({
@@ -29,12 +31,16 @@ const featureSchema = new Schema({ type: String, properties: {
 const geojsonSchema = new mongoose.Schema({
     type: String,
     name: String,
-    crs: crsSchema,
-    features: [featureSchema]
+    crs: Object,
+    features: [Object]
 
 
     
 }, {versionKey: false});
 
-// Export schema
-module.exports = mongoose.model('geojson', geojsonSchema);
+
+
+const geojson = geojsonDb.model('geojsons', geojsonSchema);
+
+export default geojson;
+
