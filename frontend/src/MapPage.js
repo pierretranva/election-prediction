@@ -2,15 +2,24 @@ import React, { useState, useEffect, useRef} from "react";
 import { Route, Routes} from "react-router-dom";
 import { Map, FullscreenControl, Popup, Marker, Source, Layer } from "react-map-gl";
 import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
-import counties from './counties.geojson';
-import Sidebar from './Sidebar';
-import NavBar from "./Navbar";
+import axios from 'axios';
 
 const MapPage = () => {
-	const [data, setData] = useState(counties);
+	const [data, setData] = useState();
 	const [popupInfo, setPopupInfo] = useState(null);
 	const mapRef = useRef(null);
-  
+
+    useEffect(() =>{
+        console.log("useEffect")
+        axios({
+            method: 'get',
+            url: 'http://localhost:3000/db/geojson',
+          })
+            .then((response) => {
+                setData(response.data[0])
+            });
+    }
+    ,[])
 	const layerStyle = {
 	  id: 'county-boundaries',
 	  type: 'line',
