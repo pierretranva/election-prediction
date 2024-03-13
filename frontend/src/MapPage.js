@@ -3,6 +3,8 @@ import { Route, Routes} from "react-router-dom";
 import { Map, FullscreenControl, Popup, Marker, Source, Layer } from "react-map-gl";
 import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 import counties from './counties.geojson';
+import Sidebar from './Sidebar';
+import NavBar from "./Navbar";
 
 const MapPage = () => {
 	const [data, setData] = useState(counties);
@@ -42,8 +44,15 @@ const MapPage = () => {
 	  }
 	};
   
+	const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  	const toggleSidebar = () => {
+    	setSidebarOpen(!sidebarOpen);
+  	}
 	return (
 	  <div style={{ width: "100vw", height: "100vh" }}>
+		<NavBar toggleSidebar={toggleSidebar}></NavBar>
+		<Sidebar isOpen={sidebarOpen} onClose={toggleSidebar} />
 		<Map
 		  ref={mapRef}
 		  initialViewState={{
