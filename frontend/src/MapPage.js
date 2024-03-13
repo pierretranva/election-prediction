@@ -16,7 +16,7 @@ const MapPage = () => {
 	  type: 'line',
 	  paint: {
 		'line-width': 0.8,
-		'line-color': '#808080',
+		'line-color': '#a0a0a0',
 	  },
 	};
 
@@ -30,6 +30,7 @@ const MapPage = () => {
 	  };
   
 	const handleMouseMove = (e) => {
+        if(mapRef.current === null) return;
 	  const map = mapRef.current.getMap(); // get map instance
 	  const features = map.queryRenderedFeatures(e.point, { layers: ['county-fill'] });
 	  if (features.length > 0) {
