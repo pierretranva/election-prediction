@@ -2,24 +2,15 @@ import React, { useState, useEffect, useRef} from "react";
 import { Route, Routes} from "react-router-dom";
 import { Map, FullscreenControl, Popup, Marker, Source, Layer } from "react-map-gl";
 import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
-import axios from 'axios';
+import counties from './counties.geojson';
+import NavBar from "./Navbar";
+import Sidebar from "./Sidebar";
 
 const MapPage = () => {
-	const [data, setData] = useState();
+	const [data, setData] = useState(counties);
 	const [popupInfo, setPopupInfo] = useState(null);
 	const mapRef = useRef(null);
-
-    useEffect(() =>{
-        console.log("useEffect")
-        axios({
-            method: 'get',
-            url: 'http://localhost:3000/db/geojson',
-          })
-            .then((response) => {
-                setData(response.data[0])
-            });
-    }
-    ,[])
+  
 	const layerStyle = {
 	  id: 'county-boundaries',
 	  type: 'line',
@@ -55,13 +46,14 @@ const MapPage = () => {
   
 	const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  	const toggleSidebar = () => {
-    	setSidebarOpen(!sidebarOpen);
-  	}
+    const toggleSidebar = () => {
+        setSidebarOpen(!sidebarOpen);
+    }
+
 	return (
 	  <div style={{ width: "100vw", height: "100vh" }}>
 		<NavBar toggleSidebar={toggleSidebar}></NavBar>
-		<Sidebar isOpen={sidebarOpen} onClose={toggleSidebar} />
+        <Sidebar isOpen={sidebarOpen} onClose={toggleSidebar} />
 		<Map
 		  ref={mapRef}
 		  initialViewState={{
