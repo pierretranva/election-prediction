@@ -36,3 +36,64 @@
     transform: rotate(360deg);
   }
 }
+
+.login-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.login-form {
+  width: 300px;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.login-form input[type="text"],
+.login-form input[type="password"],
+.login-form button {
+  display: block;
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 3px;
+  border: 1px solid #ccc;
+}
+
+.login-form button {
+  background-color: #007bff;
+  color: #fff;
+  cursor: pointer;
+  display: block;
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 3px;
+  border: 1px solid #ccc;
+}
+
+.login-form button:hover {
+  background-color: #0056b3;
+}
+
+.login-form input[type="text"],
+.login-form input[type="password"] {
+  width: calc(100% - 20px); /* Adjust width */
+  margin-bottom: 15px;
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 3px;
+  border: 1px solid #ccc;
+  display: block;
+  margin: 10 auto; /* Center the input fields horizontally */
+}
+
+.login-form input[type="text"]:focus,
+.login-form input[type="password"]:focus {
+  border-color: #007bff;
+  outline: none;
+}

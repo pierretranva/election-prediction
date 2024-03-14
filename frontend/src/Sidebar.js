@@ -7,13 +7,13 @@ const Sidebar = ({ isOpen, onClose }) => {
   return (
     <Drawer open={isOpen} onClose={onClose}>
       <List>
-        <ListItem button>
+        <ListItem>
           <ListItemText primary="Home" />
         </ListItem>
-        <ListItem button>
+        <ListItem>
           <ListItemText primary="About" />
         </ListItem>
-        <ListItem button>
+        <ListItem>
           <ListItemText primary="Contact" />
         </ListItem>
       </List>
