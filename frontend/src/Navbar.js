@@ -14,7 +14,7 @@ export default function NavBar({toggleSidebar}) {
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
-        <Toolbar>
+        <Toolbar sx={{ justifyContent: 'space-between' }}>
           <IconButton
             size="large"
             edge="start"
@@ -25,7 +25,7 @@ export default function NavBar({toggleSidebar}) {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          <Typography variant="h6" component="div" sx={{ textAlign: 'center', flexGrow: 1 }}>
             2024 Presidential Election Prediction
           </Typography>
           <Button color="inherit" component={Link} to="/login">

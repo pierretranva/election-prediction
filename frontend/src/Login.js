@@ -34,6 +34,7 @@ const LoginPage = () => {
     // You can send a request to your backend for authentication here
     console.log('Logging in with credentials:', credentials);
     // Example: fetch('/login', { method: 'POST', body: JSON.stringify(credentials) })
+    
   };
 
   return (

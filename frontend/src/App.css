@@ -97,3 +97,23 @@
   border-color: #007bff;
   outline: none;
 }
+
+/* Sidebar.css */
+
+.sidebar-list {
+  width: 250px; /* Adjust the width of the sidebar list */
+}
+
+.sidebar-item {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-bottom: 0;
+}
+
+.sidebar-item:hover {
+  background-color: #f0f0f0;
+}
+
+.sidebar-item:hover .MuiListItemText-primary {
+  color: #000;
+}
