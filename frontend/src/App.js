@@ -3,6 +3,7 @@ import "./App.css";
 import { Route, Routes} from "react-router-dom";
 import MapPage from "./MapPage";
 import LoginPage from "./Login";
+import RegisterPage from "./Register";
 
 
 const App = () => {
@@ -49,7 +50,7 @@ const App = () => {
 				<Route path="map" element={<></>} />
                 <Route path="login" element={<LoginPage/>} />
                 <Route path="admin" element={<></>} />
-                <Route path="register" element={<></>} />
+                <Route path="register" element={<RegisterPage/>} />
                 <Route path="data" element={<></>} />
 			</Routes>
 		</>

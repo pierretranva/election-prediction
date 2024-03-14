@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import './App.css'
-import Button from '@mui/material/Button';
-import { Link } from 'react-router-dom';
 
-const LoginForm = ({ onSubmit }) => {
+const RegisterForm = ({ onSubmit }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
@@ -26,32 +24,27 @@ const LoginForm = ({ onSubmit }) => {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
-      <button type="submit">Login</button>
-      <div style={{ textAlign: 'center' }}> {/* Center the button */}
-        <Button color="inherit" component={Link} to="/register">
-          Register here
-        </Button>
-      </div>
+      <button type="submit">Register</button>
     </form>
   );
 };
 
-const LoginPage = () => {
-  const handleLogin = (credentials) => {
+const RegisterPage = () => {
+  const handleRegister = (credentials) => {
     // You can send a request to your backend for authentication here
-    console.log('Logging in with credentials:', credentials);
+    console.log('Register with credentials:', credentials);
     // Example: fetch('/login', { method: 'POST', body: JSON.stringify(credentials) })
-
+    
   };
 
   return (
     <div className="login-page">
         <div className="login-form">
-            <h1>Login Page</h1>
-            <LoginForm onSubmit={handleLogin} />
+            <h1>Register Page</h1>
+            <RegisterForm onSubmit={handleRegister} />
         </div>
     </div>
   );
 };
 
-export default LoginPage;
+export default RegisterPage;
