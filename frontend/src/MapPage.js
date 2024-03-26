@@ -5,11 +5,24 @@ import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-load
 import counties from './counties.geojson';
 import NavBar from "./Navbar";
 import Sidebar from "./Sidebar";
+import axios from 'axios';
 
 const MapPage = () => {
-	const [data, setData] = useState(counties);
+	const [data, setData] = useState();
 	const [popupInfo, setPopupInfo] = useState(null);
 	const mapRef = useRef(null);
+
+    useEffect(() =>{
+        // console.log("useEffect")
+        axios({
+            method: 'get',
+            url: 'http://localhost:3000/db/geojson',
+          })
+            .then((response) => {
+                setData(response.data[0])
+            });
+    }
+    ,[])
   
 	const layerStyle = {
 	  id: 'county-boundaries',
