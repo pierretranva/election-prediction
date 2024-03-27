@@ -1,6 +1,5 @@
 import xlsx from 'xlsx'; // Import the xlsx library for reading Excel files
 import mongoose from 'mongoose'; // Import mongoose for MongoDB interaction
-import { countyData } from './models/countyData.js'; // Assuming you have a model for county data
 
 // Function to parse Excel file and save data to MongoDB
 async function parseAndSaveData(filename) {
@@ -14,7 +13,7 @@ async function parseAndSaveData(filename) {
         const jsonData = xlsx.utils.sheet_to_json(sheet);
 
         // Connect to MongoDB using the provided URI
-        await mongoose.connect('mongodb+srv://admin:admin@cluster0.uspafmk.mongodb.net/', {
+        await mongoose.connect('mongodb+srv://admin:admin@cluster0.uspafmk.mongodb.net/counties', {
             useNewUrlParser: true,
             useUnifiedTopology: true
         });
@@ -23,13 +22,23 @@ async function parseAndSaveData(filename) {
         for (const line of jsonData) {
             const { year, state_county, ...data } = line; // Extract year and state_county, and keep the rest as data fields
 
-            // Check if data exists in the database
-            const existingData = await countyData.findOne({ year, state_county });
+            // Create a collection name based on the year
+            const collectionName = `year_${year}`;
 
-            // If data does not exist, create a new document and save it to the database
-            if (!existingData) {
-                const newData = new countyData({ year, state_county, ...data });
-                await newData.save();
+            // Retrieve the collection
+            const collection = mongoose.connection.db.collection(collectionName);
+
+            // Check if data exists for the specified year and county number
+            const existingData = await collection.findOne({ year, state_county });
+
+            if (existingData) {
+                // If data exists, update the existing entry with new data fields
+                await collection.updateOne({ year, state_county }, { $set: data });
+                console.log(`Updated data for year ${year} and county ${state_county}`);
+            } else {
+                // If data does not exist, insert a new entry with all data fields
+                await collection.insertOne({ year, state_county, ...data });
+                console.log(`Added new data entry for year ${year} and county ${state_county}`);
             }
         }
 
@@ -43,4 +52,4 @@ async function parseAndSaveData(filename) {
 }
 
 // Call the function with the filename of the Excel file
-parseAndSaveData('example.xlsx');
+parseAndSaveData('data_shared.xlsx');
