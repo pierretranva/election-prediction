@@ -7,9 +7,10 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
+import Avatar from '@mui/material/Avatar';
 import { Link } from 'react-router-dom';
 
-export default function NavBar({toggleSidebar}) {
+export default function NavBar({toggleSidebar, isLogin}) {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -28,9 +29,12 @@ export default function NavBar({toggleSidebar}) {
           <Typography variant="h6" component="div" sx={{ textAlign: 'center', flexGrow: 1 }}>
             2024 Presidential Election Prediction
           </Typography>
-          <Button color="inherit" component={Link} to="/login">
+          {!isLogin ? <Button color="inherit" component={Link} to="/login">
           Login
-          </Button>
+          </Button> :  <IconButton sx={{ p: 0 }}>
+                <Avatar alt="User" />
+              </IconButton>
+            }
         </Toolbar>
       </AppBar>
     </Box>

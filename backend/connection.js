@@ -7,5 +7,9 @@ const geojsonDb = mongoose.createConnection(process.env.MOGNO_URI + "geojson?ret
 
 const countiesDb = mongoose.createConnection(process.env.MOGNO_URI + "counties?retryWrites=true&w=majority");
 
+const userDb = mongoose.createConnection(process.env.MOGNO_URI + "user?retryWrites=true&w=majority");
 
-export { geojsonDb, countiesDb };
+
+
+
+export { geojsonDb, countiesDb, userDb };

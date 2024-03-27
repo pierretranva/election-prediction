@@ -3,8 +3,6 @@ import { Route, Routes} from "react-router-dom";
 import { Map, FullscreenControl, Popup, Marker, Source, Layer } from "react-map-gl";
 import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 import counties from './counties.geojson';
-import NavBar from "./Navbar";
-import Sidebar from "./Sidebar";
 import axios from 'axios';
 
 const MapPage = () => {
@@ -57,17 +55,9 @@ const MapPage = () => {
 		setPopupInfo(null); // clear popup info when not hovering over a feature
 	  }
 	};
-  
-	const [sidebarOpen, setSidebarOpen] = useState(false);
-
-    const toggleSidebar = () => {
-        setSidebarOpen(!sidebarOpen);
-    }
 
 	return (
 	  <div style={{ width: "100vw", height: "100vh" }}>
-		<NavBar toggleSidebar={toggleSidebar}></NavBar>
-        <Sidebar isOpen={sidebarOpen} onClose={toggleSidebar} />
 		<Map
 		  ref={mapRef}
 		  initialViewState={{
