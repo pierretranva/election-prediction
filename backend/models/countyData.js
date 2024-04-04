@@ -82,14 +82,15 @@ const countyDataSchema = new mongoose.Schema({
 	empstat_1_freq: Number,
 	empstat_3_freq: Number,
 	empstat_2_freq: Number,
-	state_po: Number,
-	county_name: Number,
+	state_po: String,
+	county_name: String,
 	democrat: Number,
 	green: Number,
 	liberitarian: Number,
 	other: Number,
 	republican: Number,
 	winner: Number,
+	prediction: Number
 });
 
 // Export schema
