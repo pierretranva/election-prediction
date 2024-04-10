@@ -5,10 +5,62 @@ import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-load
 import counties from './counties.geojson';
 import axios from 'axios';
 
+
 const MapPage = () => {
 	const [data, setData] = useState();
 	const [popupInfo, setPopupInfo] = useState(null);
+    const [year, setYear] = useState(2020);
+    const [predictions, setPredictions] = useState([]); 
+    const [fillLayerStyle, setFillLayerStyle] = useState({ id: 'county-fill',
+    type: 'fill',
+    paint: {
+        'fill-color': [
+            'match', // Use the match expression
+            ['get', 'GEOID'], // Get the GEOID from the properties
+            '1000', 'grey',
+            'grey' // Default color for other counties
+        ],
+        'fill-opacity': 0.2,
+    }})
 	const mapRef = useRef(null);
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setYear(prevYear => {
+                if (prevYear === 2022) {
+                    return 2008; // Reset to start year if it reaches 2022
+                } else {
+                    return prevYear + 1; // Increment year
+                }
+            });
+        }, 1000); // Interval duration in milliseconds
+
+        return () => clearInterval(interval); // Cleanup function to clear interval on component unmount
+    }, []);
+
+    useEffect(() =>{
+        
+        const fetchData = async () => {
+        let res = await axios({
+            method: 'get',
+            url: 'http://localhost:3000/db/counties/'+ year.toString(),
+        })
+        setData(res.data)
+        let paintLayerArray = ['match', ['get', 'GEOID']]
+        res.data.map((county) => {
+            if(county.winner === 0){
+            paintLayerArray.push(county.state_county.toString(), 'blue')
+            }
+            else{
+                paintLayerArray.push(county.state_county.toString(), 'red')
+            }
+        })
+        paintLayerArray.push('grey')
+        setFillLayerStyle({...fillLayerStyle, paint: {'fill-color': paintLayerArray, 'fill-opacity': 0.2}});
+
+    }
+    console.log(year)
+    fetchData();
+}, [year]);
 
     useEffect(() =>{
         // console.log("useEffect")
@@ -31,14 +83,6 @@ const MapPage = () => {
 	  },
 	};
 
-	const fillLayerStyle = {
-		id: 'county-fill',
-		type: 'fill',
-		paint: {
-		  'fill-color': '#90ee90',
-		  'fill-opacity': 0.2,
-		},
-	  };
   
 	const handleMouseMove = (e) => {
         if(mapRef.current === null) return;
