@@ -42,7 +42,7 @@ const MapPage = () => {
         const fetchData = async () => {
         let res = await axios({
             method: 'get',
-            url: 'http://localhost:3002/db/counties/'+ year.toString(),
+            url: 'http://localhost:3000/db/counties/'+ year.toString(),
         })
         setData(res.data)
         let paintLayerArray = ['match', ['get', 'GEOID']]
