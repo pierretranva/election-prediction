@@ -42,7 +42,7 @@ const MapPage = () => {
         const fetchData = async () => {
         let res = await axios({
             method: 'get',
-            url: 'http://localhost:3000/db/counties/'+ year.toString(),
+            url: 'http://localhost:3002/db/counties/'+ year.toString(),
         })
         setData(res.data)
         let paintLayerArray = ['match', ['get', 'GEOID']]
@@ -83,23 +83,37 @@ const MapPage = () => {
 	  },
 	};
 
-  
-	const handleMouseMove = (e) => {
-        if(mapRef.current === null) return;
-	  const map = mapRef.current.getMap(); // get map instance
-	  const features = map.queryRenderedFeatures(e.point, { layers: ['county-fill'] });
-	  if (features.length > 0) {
-		const feature = features[0];
-		setPopupInfo({
-		  countyName: feature.properties.NAME, // "NAME" property for the county name
-		  longitude: e.lngLat.lng,
-		  latitude: e.lngLat.lat,
-		});
-	  } else {
-		setPopupInfo(null); // clear popup info when not hovering over a feature
-	  }
+	const handleMouseMove = async (e) => {
+		if (!mapRef.current) return;
+		const map = mapRef.current.getMap();
+		const features = map.queryRenderedFeatures(e.point, { layers: ['county-fill'] });
+		if (features.length > 0) {
+			const feature = features[0];
+			const countyFIPS = feature.properties.GEOID;
+			try {
+				let url = `http://localhost:3000/db/county/${countyFIPS}?year=${year}`;
+				let response = await axios.get(url);
+				if (response.data && response.data.length > 0) {
+					const detailsForYear = response.data[0];
+					setPopupInfo({
+						details: detailsForYear,
+						longitude: e.lngLat.lng,
+						latitude: e.lngLat.lat,
+						countyName: feature.properties.NAME,
+					});
+				} else {
+					setPopupInfo(null);
+				}
+			} catch (error) {
+				console.error("Failed to fetch county details", error);
+				setPopupInfo(null);
+			}
+		} else {
+			setPopupInfo(null);
+		}
 	};
-
+	
+	  
 	return (
 	  <div style={{ width: "100vw", height: "100vh" }}>
 		<Map
@@ -128,7 +142,14 @@ const MapPage = () => {
 			  closeOnClick={false}
 			  anchor="top"
 			>
-			  {popupInfo.countyName}
+			  <p><strong>County: </strong>{popupInfo.countyName}</p>
+			  <p><strong>Average Annual Family Income: </strong>${popupInfo.details.avg_ann_income_family}</p>
+			  <p><strong>Male: </strong>{popupInfo.details.males_percent}%</p>
+			  <p><strong>Female: </strong>{popupInfo.details.females_percent}%</p>
+			  <p><strong>Citizens: </strong>{popupInfo.details.citizen_percent}%</p>
+			  <p><strong>Employed: </strong>{popupInfo.details.employed_percent}%</p>
+			  <p><strong>Some college/Bachelor's: </strong>{popupInfo.details.some_college_or_bachelor_percent}%</p>
+			  <p><strong>High School or Lower Education: </strong>{popupInfo.details.high_school_or_lower_education_percent}%</p>
 			</Popup>
 		  )}
 		</Map>
