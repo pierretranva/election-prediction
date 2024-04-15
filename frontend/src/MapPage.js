@@ -140,7 +140,7 @@ const MapPage = () => {
 			id="year-select"
 			value={year}
 			onChange={handleYearChange}
-			label="Year" // Ensures correct association for floating label
+			label="Year"
 			renderValue={(selected) => `${selected}`}
 			sx={{
 			  '& .MuiSelect-select': { 

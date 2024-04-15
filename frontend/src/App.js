@@ -6,6 +6,7 @@ import LoginPage from "./Login";
 import RegisterPage from "./Register";
 import NavBar from "./Navbar";
 import Sidebar from "./Sidebar";
+import AboutUs from "./AboutUs";
 
 
 const App = () => {
@@ -72,6 +73,7 @@ const [sidebarOpen, setSidebarOpen] = useState(false);
                 <Route path="admin" element={<></>} />
                 <Route path="register" element={<RegisterPage handleRegister={handleRegisterSuccess}/>} />
                 <Route path="data" element={<></>} />
+				<Route path="about-us" element={<AboutUs/>} />
 			</Routes>
 		</>
 	);

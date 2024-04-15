@@ -1,10 +1,10 @@
 import React from 'react';
 import { Typography, Link } from '@mui/material';
-import './App.css'; // Ensure that App.css is imported if it's not already included globally
+import './App.css';
 
 const AboutUs = () => {
     return (
-        <div className="about-us"> {/* Apply the 'about-us' CSS class */}
+        <div className="about-us">
             <Typography variant="h4" component="h1" gutterBottom>
                 About Us
             </Typography>

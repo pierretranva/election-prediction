@@ -117,3 +117,54 @@
 .sidebar-item:hover .MuiListItemText-primary {
   color: #000;
 }
+
+/* About Us Styles */
+.about-us {
+  padding: 20px;
+  color: #333;
+  text-align: left;
+  max-width: 960px;
+  margin: 20px auto;
+}
+
+.about-us h2, .about-us h3 {
+  color: #000000;
+}
+
+.about-us h1 {
+  color: #000000;
+  text-align: center;
+  font-weight: 200;
+}
+
+.about-us p {
+  line-height: 1.6;
+  margin-bottom: 15px;
+}
+
+.about-us a {
+  color: #61dafb;
+  text-decoration: none;
+}
+
+.about-us a:hover {
+  text-decoration: underline;
+}
+
+.about-us ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.about-us li {
+  margin-bottom: 10px;
+}
+
+hr {
+  display: block;
+  height: 1px;
+  border: 0;
+  border-top: 1px solid #000000;
+  margin: 1em 0;
+  padding: 0;
+}
