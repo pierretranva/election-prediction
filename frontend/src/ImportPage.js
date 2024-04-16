@@ -5,71 +5,143 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
-import Button from "@mui/material/Button"
-import Box from "@mui/material/Box"
-import TextField from "@mui/material/TextField"
+import Button from "@mui/material/Button";
+import Box from "@mui/material/Box";
+import TextField from "@mui/material/TextField";
+import Alert from "@mui/material/Alert";
+import IconButton from "@mui/material/IconButton";
+import CloseIcon from "@mui/icons-material/Close";
+import Collapse from "@mui/material/Collapse";
+import LinearProgress from "@mui/material/LinearProgress";
 
-const ImportPage = (loggedIn, user) => {
-	const [files, setFiles] = useState(null);
-    const [fileType, setFileType] = useState("County Data");
 
+const ImportPage = (props) => {
+    console.log(props.loggedIn)
+	const [files, setFiles] = useState([]);
+	const [fileType, setFileType] = useState("County Data");
+	const [algName, setAlgName] = useState("");
+	const [increment, setIncrement] = useState(0);
+	const [alert, setAlert] = useState("");
+	const [alertOpen, setAlertOpen] = useState(false);
+	const [alertSeverity, setAlertSeverity] = useState("");
+    const [loading, setLoading] = useState(false);
 
 	const handleSubmit = async () => {
-		if (!files) {
-			alert("Please select a file.");
+		if (files.length === 0) {
+			setAlert("Please select a file.");
+			setAlertSeverity("error");
+			setAlertOpen(true);
 			return;
 		}
+		if (fileType === "Prediction Data" && algName === "") {
+			setAlert("Please enter a prediction Algorithm Name");
+			setAlertSeverity("error");
+			setAlertOpen(true);
+			return;
+		}
+		let fileTypeForm = "prediction";
+		if (fileType === "County Data") {
+			fileTypeForm = "county";
+		}
 		const formData = new FormData();
-		formData.append("file", files);
+		formData.append("file", files[0]);
+		formData.append("algName", algName);
+		formData.append("fileType", fileTypeForm);
 
 		try {
-			const response = await axios.post("http://localhost:3000/upload", formData, {
+            setLoading(true);
+			const response = await axios.post("http://localhost:3000/db/upload", formData, {
 				headers: {
 					"Content-Type": "multipart/form-data",
 				},
 			});
-            setFiles(null)
+            setLoading(false);
+			setFiles([]);
+			setAlgName("");
+			setIncrement(increment + 1);
 			console.log("File uploaded successfully", response.data);
+			setAlert("File uploaded successfully.");
+			setAlertSeverity("success");
+			setAlertOpen(true);
 		} catch (error) {
 			console.error("Error uploading file:", error);
+			setAlert("File uploaded successfully:" + error);
+			setAlertSeverity("error");
+			setAlertOpen(true);
 		}
 	};
 
 	return (
-		<Box sx={{display: 'flex', flexDirection: 'column'}}>
-			{!loggedIn ? (
+		<Box sx={{ display: "flex", flexDirection: "column" }}>
+			<Collapse in={alertOpen}>
+				<Alert
+					variant="filled"
+					severity={alertSeverity}
+					action={
+						<IconButton
+							aria-label="close"
+							color="inherit"
+							size="small"
+							onClick={() => {
+								setAlertOpen(false);
+							}}
+						>
+							<CloseIcon fontSize="inherit" />
+						</IconButton>
+					}
+					sx={{ mb: 2 }}
+				>
+					{alert}
+				</Alert>
+			</Collapse>
+			{!props.loggedIn ? (
 				<h1>Please Log in to access file uploading</h1>
 			) : (
-				<Box sx={{display: 'flex', flexDirection:'column ', pl: 20, pr:20, mt: 5}}>
+				<Box sx={{ display: "flex", flexDirection: "column ", pl: 20, pr: 20, mt: 5 }}>
 					<DropzoneArea
+						key={increment}
 						acceptedFiles={[".xlsx"]}
+						filesLimit={1}
 						maxFileSize={5000000}
 						dropzoneText={"Drag and drop an .xlsx file here"}
 						showAlerts={["error", "info"]}
 						onChange={(files) => setFiles(files)}
-                        
 					/>
-					<FormControl fullWidth sx={{marginTop: 2}}>
+					<FormControl fullWidth sx={{ marginTop: 2 }}>
 						<InputLabel>File Type</InputLabel>
 						<Select
 							labelId="demo-simple-select-label"
 							id="demo-simple-select"
 							value={fileType}
 							label="County Data"
-							onChange={(e) => {setFileType(e.target.value)}}
+							onChange={(e) => {
+								setFileType(e.target.value);
+							}}
 						>
 							<MenuItem value={"County Data"}>County Data</MenuItem>
 							<MenuItem value={"Prediction Data"}>Prediction Data</MenuItem>
 						</Select>
 					</FormControl>
-                    <TextField label="Filename" variant="outlined" required sx={{marginTop: 2}}></TextField>
-                        <Button variant="contained" onClick={handleSubmit} sx={{mt: 2}}>Upload File</Button>
+					{fileType === "Prediction Data" && (
+						<TextField
+							value={algName}
+							label="Prediction Algorithm Name"
+							variant="outlined"
+							required
+							sx={{ marginTop: 2 }}
+							onChange={(e) => {
+								setAlgName(e.target.value);
+							}}
+						></TextField>
+					)}
+					<Button variant="contained" onClick={handleSubmit} sx={{ mt: 2 }}>
+						Upload File
+					</Button>
+                    {loading && <LinearProgress sx={{mt:2}} />}
 
 					{/* <input type="file" onChange={handleFileChange}></input> */}
-                    </Box>
-
+				</Box>
 			)}
-
 		</Box>
 	);
 };

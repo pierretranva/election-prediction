@@ -64,7 +64,7 @@ const LoginPage = (props) => {
     <div className="login-page">
         <div className="login-form">
             <h1>Login Page</h1>
-            <LoginForm onSubmit={handleLogin} />
+            {!props.loggedIn ? <LoginForm onSubmit={handleLogin} /> : <p>Already Logged In</p>}
             <p>{error}</p>
         </div>
     </div>

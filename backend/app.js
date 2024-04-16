@@ -7,6 +7,8 @@ import { default as geojsonSchema } from "./models/geojson.js";
 import { default as userSchema } from "./models/user.js";
 import { default as getCountyModel } from "./models/countyData.js";
 import dotenv from "dotenv";
+import multer from "multer"
+import { parseAndSaveCountyData, praseAndSavePredictionData } from "./parsers/excelParser.js";
 dotenv.config();
 
 // Set the web server
@@ -116,5 +118,34 @@ router.route("/counties/:year").get(async (req, res) => {
 	res.json(response);
 });
 
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, 'uploads/')
+    },
+    filename: function (req, file, cb) {
+      cb(null, file.originalname)
+    }
+  })
+const upload = multer({storage: storage}) 
+
+  router.post("/upload", upload.single("file"), async (req, res) => {
+    console.log(req.body);
+    console.log(req.file);
+    if(req.body.fileType === 'county')
+    {
+     await parseAndSaveCountyData(req.file.path)
+    }
+    else if(req.body.fileType === 'prediction')
+    {
+       await praseAndSavePredictionData(req.file.path, req.body.algName)
+    }
+    else {
+        res.json({ message: "Invalid file type" });
+        return;
+    }
+    res.json({ message: "Successfully uploaded files" });
+   
+  });
+  
 const port = process.env.PORT;
 app.listen(port, () => console.log(`Hello world app listening on port ${port}!`));

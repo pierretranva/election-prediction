@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef} from "react";
 import { Route, Routes} from "react-router-dom";
 import { Map, FullscreenControl, Popup, Marker, Source, Layer } from "react-map-gl";
 import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
-import counties from './counties.geojson';
 import axios from 'axios';
 import { Select, MenuItem, FormControl, InputLabel, Typography } from '@mui/material';
 

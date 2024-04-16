@@ -9,6 +9,10 @@ const countiesDb = mongoose.createConnection(process.env.MOGNO_URI + "counties?r
 
 const userDb = mongoose.createConnection(process.env.MOGNO_URI + "user?retryWrites=true&w=majority");
 
+const predictionDb = mongoose.createConnection(process.env.MOGNO_URI + "prediction?retryWrites=true&w=majority");
+
+
+
 
 
 

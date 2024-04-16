@@ -5,11 +5,11 @@ import { Drawer, List, ListItem, ListItemText } from "@mui/material";
 import { NavLink } from "react-router-dom";
 
 const pages = [
+    { name: "About Us", link: "/about-us"},
 	{ name: "Map", link: "/map" },
 	{ name: "Trends", link: "/trends" },
-	{ name: "Login", link: "/login" },
-	{ name: "About Us", link: "/about-us"},
     { name: "Upload File", link: "/admin" },
+    { name: "Login", link: "/login" },
 ];
 const Sidebar = ({ toggleSideBar, handleLogout, isOpen, onClose }) => {
 	return (
