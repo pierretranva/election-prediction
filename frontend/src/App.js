@@ -6,7 +6,8 @@ import LoginPage from "./Login";
 import RegisterPage from "./Register";
 import NavBar from "./Navbar";
 import Sidebar from "./Sidebar";
-import AboutUs from "./AboutUs";
+import Trends from "./Trends";import AboutUs from "./AboutUs";
+import ImportPage from "./ImportPage";
 
 
 const App = () => {
