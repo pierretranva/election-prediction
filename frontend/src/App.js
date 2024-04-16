@@ -8,7 +8,7 @@ import NavBar from "./Navbar";
 import Sidebar from "./Sidebar";
 import AboutUs from "./AboutUs";
 import ImportPage from "./ImportPage";
-
+import Trends from "./Trends"
 
 const App = () => {
 
@@ -75,6 +75,7 @@ const [sidebarOpen, setSidebarOpen] = useState(false);
                 <Route path="register" element={<RegisterPage handleRegister={handleRegisterSuccess}/>} />
                 <Route path="data" element={<></>} />
 				<Route path="about-us" element={<AboutUs/>} />
+				<Route path="/trends" element={<Trends/>}/>
 			</Routes>
 		</>
 	);
