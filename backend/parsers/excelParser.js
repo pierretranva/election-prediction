@@ -51,94 +51,84 @@ const data_dict = {
 };
 // Function to parse Excel file and save data to MongoDB
 async function parseAndSaveData(filename) {
-	try {
-		// Read the Excel file
-		const workbook = xlsx.readFile(filename);
-		const sheetName = workbook.SheetNames[0];
-		const sheet = workbook.Sheets[sheetName];
+    try {
+        const workbook = xlsx.readFile(filename);
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+        const jsonData = xlsx.utils.sheet_to_json(sheet);
 
-		// Convert the Excel data to JSON format
-		const jsonData = xlsx.utils.sheet_to_json(sheet);
+        await mongoose.connect('mongodb+srv://admin:admin@cluster0.uspafmk.mongodb.net/counties', {
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+        });
 
-		// Connect to MongoDB using the provided URI/
-		await mongoose.connect('mongodb+srv://admin:admin@cluster0.uspafmk.mongodb.net/counties', {
-		    useNewUrlParser: true,
-		    useUnifiedTopology: true
-		});
+        for (const line of jsonData) {
+            const { year, state_county, ...data } = line;
+            const collectionName = `year_${year}`;
+            let data_to_save = {};
+            Object.keys(data).map((key) => {
+                data_to_save[data_dict[key]] = data[key];
+            });
 
-		// Iterate over each line (county) of data
-		for (const line of jsonData) {
+            const collection = mongoose.connection.db.collection(collectionName);
+            const existingData = await collection.findOne({ year, state_county });
 
-
-			const { year, state_county, ...data } = line; // Extract year and state_county, and keep the rest as data fields
-
-			// Create a collection name based on the year
-			const collectionName = `year_${year}`;
-
-            let data_to_save = {}
-            Object.keys(data).map((key)=>{
-                data_to_save[data_dict[key]] = data[key]
-                
-            })
-
-
-			// Retrieve the collection
-			const collection = mongoose.connection.db.collection(collectionName);
-
-			// Check if data exists for the specified year and county number
-			const existingData = await collection.findOne({ year, state_county });
-
-			if (existingData) {
-			    // If data exists, update the existing entry with new data fields
-			    await collection.updateOne({ year, state_county }, { $set: data_to_save });
-			    console.log(`Updated data for year ${year} and county ${state_county}`);
-			} else {
-			    // If data does not exist, insert a new entry with all data fields
-			    await collection.insertOne({ year, state_county, ...data_to_save });
-			    console.log(`Added new data entry for year ${year} and county ${state_county}`);
-			}
-		}
-
-		console.log("Data parsing and saving completed");
-	} catch (error) {
-		console.error("Error:", error);
-	} finally {
-		// Disconnect from MongoDB after saving all data
-		await mongoose.disconnect();
-	}
-}
-
-
-function edit_prediction( prediction_filename){ 
-
-    var geojson = JSON.parse(fs.readFileSync('counties.json', 'utf8'));
-    // const geojson = require(`./${geojson_filename}`);
-    console.log(geojson)
-
-    const workbook = xlsx.readFile(prediction_filename);
-		const sheetName = workbook.SheetNames[0];
-		const sheet = workbook.Sheets[sheetName];
-
-		// Convert the Excel data to JSON format
-		const predictionData = xlsx.utils.sheet_to_json(sheet);
-        console.log(predictionData)
-        for(const line of predictionData){
-            geojson.features.map((feature)=>{
-                if(feature.properties.NAME === line.county){
-                    feature.properties.prediction = line.prediction
-                   
-                }
-            })
+            if (existingData) {
+                await collection.updateOne({ year, state_county }, { $set: data_to_save });
+                console.log(`Updated data for year ${year} and county ${state_county}`);
+            } else {
+                await collection.insertOne({ year, state_county, ...data_to_save });
+                console.log(`Added new data entry for year ${year} and county ${state_county}`);
+            }
         }
 
-    // geojson.features.map((feature)=>{
-    //     feature.properties.prediction = prediction[feature.properties.NAME]
-    // })
-
-
+        console.log("Data parsing and saving completed");
+    } catch (error) {
+        console.error("Error:", error);
+    } finally {
+        await mongoose.disconnect();
+    }
 }
 
-// Call the function with the filename of the Excel file
-parseAndSaveData("data_shared.xlsx");
+async function edit_prediction(prediction_filename) {
+    try {
+        const workbook = xlsx.readFile(prediction_filename);
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+        const predictionData = xlsx.utils.sheet_to_json(sheet);
 
-// edit_prediction("predictions.xlsx")
+        await mongoose.connect('mongodb+srv://admin:admin@cluster0.uspafmk.mongodb.net/predictions', {
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+        });
+
+        for (const line of predictionData) {
+            const { year, state_county, ...data } = line;
+            const collectionName = `year_${year}`;
+            let data_to_save = {};
+            Object.keys(data).map((key) => {
+                data_to_save[data_dict[key]] = data[key];
+            });
+
+            const collection = mongoose.connection.db.collection(collectionName);
+            const existingData = await collection.findOne({ year, state_county });
+
+            if (existingData) {
+                await collection.updateOne({ year, state_county }, { $set: data_to_save });
+                console.log(`Updated data for year ${year} and county ${state_county}`);
+            } else {
+                await collection.insertOne({ year, state_county, ...data_to_save });
+                console.log(`Added new data entry for year ${year} and county ${state_county}`);
+            }
+        }
+
+        console.log("Prediction editing and saving completed");
+    } catch (error) {
+        console.error("Error:", error);
+    } finally {
+        await mongoose.disconnect();
+    }
+}
+
+//parseAndSaveData("data_shared.xlsx");
+edit_prediction("probit_predictions.xlsx");
