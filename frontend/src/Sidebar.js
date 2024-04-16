@@ -8,7 +8,8 @@ const pages = [
 	{ name: "Map", link: "/map" },
 	{ name: "Trends", link: "/trends" },
 	{ name: "Login", link: "/login" },
-	{ name: "About Us", link: "/about-us"}
+	{ name: "About Us", link: "/about-us"},
+    { name: "Upload File", link: "/admin" },
 ];
 const Sidebar = ({ toggleSideBar, handleLogout, isOpen, onClose }) => {
 	return (
