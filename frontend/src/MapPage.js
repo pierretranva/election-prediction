@@ -112,7 +112,7 @@ const MapPage = () => {
 	  
 
 	return (
-		<div style={{ width: "100vw", height: "95vh"}}>
+		<div style={{ width: "100vw", height: "100vh"}}>
 		<FormControl 
 		  variant="outlined" 
 		  sx={{ 
