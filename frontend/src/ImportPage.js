@@ -64,6 +64,7 @@ const ImportPage = (props) => {
 			setAlertSeverity("success");
 			setAlertOpen(true);
 		} catch (error) {
+            setLoading(false);
 			console.error("Error uploading file:", error);
 			setAlert("File uploaded successfully:" + error);
 			setAlertSeverity("error");
@@ -137,7 +138,8 @@ const ImportPage = (props) => {
 					<Button variant="contained" onClick={handleSubmit} sx={{ mt: 2 }}>
 						Upload File
 					</Button>
-                    {loading && <LinearProgress sx={{mt:2}} />}
+                    {loading && <><LinearProgress sx={{mt:2}} />
+                    <p>Loading...</p></>}
 
 					{/* <input type="file" onChange={handleFileChange}></input> */}
 				</Box>

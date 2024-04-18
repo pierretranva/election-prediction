@@ -8,7 +8,7 @@ import { default as userSchema } from "./models/user.js";
 import { default as getCountyModel } from "./models/countyData.js";
 import dotenv from "dotenv";
 import multer from "multer"
-import { parseAndSaveCountyData, praseAndSavePredictionData } from "./parsers/excelParser.js";
+import { parseAndSaveCountyData, praseAndSavePredictionData, checkCountyFileFormat, checkPredictionFileFormat } from "./parsers/excelParser.js";
 dotenv.config();
 
 // Set the web server
@@ -132,14 +132,25 @@ const upload = multer({storage: storage})
     // console.log(req.file);
     if(req.body.fileType === 'county')
     {
+        if(!checkCountyFileFormat(req.file.path))
+        {
+            res.status(400).json({ message: "Invalid file format for county data" });
+            return
+        }
+    
      await parseAndSaveCountyData(req.file.path)
     }
-    else if(req.body.fileType === 'prediction')
+    else if(req.body.fileType === 'prediction' )
     {
+        if(!checkPredictionFileFormat(req.file.path))
+        {
+            res.status(400).json({ message: "Invalid file format for prediction" });
+            return
+        }
        await praseAndSavePredictionData(req.file.path, req.body.algName)
     }
     else {
-        res.json({ message: "Invalid file type" });
+        res.status(400).json({ message: "Invalid file type" });
         return;
     }
     res.json({ message: "Successfully uploaded files" });

@@ -104,7 +104,7 @@ async function parseAndSaveCountyData(filename) {
 		console.error("Error:", error);
 	} finally {
 		// Disconnect from MongoDB after saving all data
-		await mongoose.disconnect();
+		// await mongoose.disconnect();
 	}
 }
 
@@ -134,7 +134,7 @@ async function praseAndSavePredictionData(filename, algName)
 			// Create a collection name based on the year
 			const collectionName = `${algName}_${year}`;
 
-            let data_to_save = {year: year, county_fips: state_county, winner: winner, prediction: data.Prediction_Probit  };
+            let data_to_save = {year: year, county_fips: state_county, winner: winner, prediction: data[Object.keys(data)[0]]  };
 
 
 			// Retrieve the collection
@@ -163,9 +163,50 @@ async function praseAndSavePredictionData(filename, algName)
 	}
 }
 
+function checkPredictionFileFormat(filename)
+{
+    const workbook = xlsx.readFile(filename);
+    const sheetName = workbook.SheetNames[0];
+    const sheet = workbook.Sheets[sheetName];
+
+    // Convert the Excel data to JSON format
+    const jsonData = xlsx.utils.sheet_to_json(sheet);
+    for (const line of jsonData) {
+
+        const { year, state_county, winner, ...data } = line;
+        if(year === undefined || state_county === undefined || winner === undefined || Object.keys(data).length != 1)
+        {
+            return false;
+        }
+        return true
+        break;
+    }
+}
+function checkCountyFileFormat(filename)
+{
+    const workbook = xlsx.readFile(filename);
+    const sheetName = workbook.SheetNames[0];
+    const sheet = workbook.Sheets[sheetName];
+
+    // Convert the Excel data to JSON format
+    const jsonData = xlsx.utils.sheet_to_json(sheet);
+    for (const line of jsonData) {
+
+        const { year, state_county, ...data } = line;
+        if(year === undefined || state_county === undefined ||  Object.keys(data).length <= 1 )
+        {
+            return false;
+        }
+        return true
+        break;
+    }
+}
 
 // Call the function with the filename of the Excel file
 // parseAndSaveCountyData("data_shared.xlsx");
 
 // praseAndSavePredictionData("probit_predictions.xlsx", "probit")
-export {parseAndSaveCountyData, praseAndSavePredictionData};
+
+// console.log(checkCountyFileFormat("probit_predictions.xlsx"))
+
+export {parseAndSaveCountyData, praseAndSavePredictionData, checkCountyFileFormat, checkPredictionFileFormat};
