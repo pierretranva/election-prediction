@@ -29,7 +29,7 @@ app.use("/db", router);
 //get geojson data
 router.route("/geojson").get(async (req, res) => {
 	let response = await geojsonSchema.find().exec();
-	console.log(response);
+	// console.log(response);
 	res.json(response);
 });
 //insert geojson data
@@ -43,7 +43,6 @@ router.route("/user/register").post((req, res) => {
 	userSchema.find({ username: req.body.username }).then((item) => {
 		if (item.length != 0) {
 			res.status(401).json("Username already used");
-			console.log("trying to duplicate thing");
 			res.end();
 			return;
 		} else {
@@ -96,14 +95,14 @@ router.route("/county/:county").get(async (req, res) => {
 				.exec();
 			all_years_data.push(response);
 		}
-		console.log(all_years_data);
+		// console.log(all_years_data);
 
 		res.json(all_years_data);
 	} else {
 		let response = await getCountyModel("year_" + req.query.year)
 			.find({ state_county: parseInt(req.params.county) })
 			.exec();
-		console.log(response);
+		// console.log(response);
 		res.json(response);
 	}
 });
@@ -114,7 +113,7 @@ router.route("/counties/:year").get(async (req, res) => {
 	let response = await getCountyModel("year_" + req.params.year)
 		.find()
 		.exec();
-	console.log(response);
+	// console.log(response);
 	res.json(response);
 });
 
@@ -129,8 +128,8 @@ const storage = multer.diskStorage({
 const upload = multer({storage: storage}) 
 
   router.post("/upload", upload.single("file"), async (req, res) => {
-    console.log(req.body);
-    console.log(req.file);
+    // console.log(req.body);
+    // console.log(req.file);
     if(req.body.fileType === 'county')
     {
      await parseAndSaveCountyData(req.file.path)

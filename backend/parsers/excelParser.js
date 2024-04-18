@@ -1,5 +1,5 @@
 import xlsx from "xlsx"; // Import the xlsx library for reading Excel files
-import mongoose from "mongoose"; // Import mongoose for MongoDB interaction
+import mongoose, { disconnect } from "mongoose"; // Import mongoose for MongoDB interaction
 
 
 const data_dict = {
@@ -159,7 +159,7 @@ async function praseAndSavePredictionData(filename, algName)
 		console.error("Error:", error);
 	} finally {
 		// Disconnect from MongoDB after saving all data
-		await mongoose.disconnect();
+		// await mongoose.disconnect();
 	}
 }
 
