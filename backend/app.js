@@ -2,10 +2,11 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import bcrypt from "bcrypt";
-import { geojsonDb, countiesDb } from "./connection.js";
+import { geojsonDb, countiesDb, predictionDb } from "./connection.js";
 import { default as geojsonSchema } from "./models/geojson.js";
 import { default as userSchema } from "./models/user.js";
 import { default as getCountyModel } from "./models/countyData.js";
+import { default as getPredictionModel } from "./models/prediction.js";
 import dotenv from "dotenv";
 import multer from "multer"
 import { parseAndSaveCountyData, praseAndSavePredictionData, checkCountyFileFormat, checkPredictionFileFormat } from "./parsers/excelParser.js";
@@ -25,6 +26,27 @@ app.get(
 
 const router = express.Router();
 app.use("/db", router);
+
+// get all available prediction models
+router.route("/prediction/models").get(async (req, res) => {
+        // Retrieve all collections in the prediction database
+        let collections_res = await predictionDb.listCollections();
+        let collections_list = [];
+        collections_res.forEach((i) => { 
+            collections_list.push(i.name);
+        });
+        collections_list.sort(); // Sort the list of collection names
+        res.json(collections_list);
+});
+
+// get specific prediction model
+router.route("/prediction/:model").get(async (req, res) => {
+	let response = await getPredictionModel(req.params.model).find().exec();
+	console.log(response);
+    res.json(response);
+});
+
+
 
 //get geojson data
 router.route("/geojson").get(async (req, res) => {
@@ -116,6 +138,7 @@ router.route("/counties/:year").get(async (req, res) => {
 	// console.log(response);
 	res.json(response);
 });
+
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {

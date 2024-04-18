@@ -3,17 +3,20 @@ import { Route, Routes} from "react-router-dom";
 import { Map, FullscreenControl, Popup, Marker, Source, Layer } from "react-map-gl";
 import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 import axios from 'axios';
-import { Select, MenuItem, FormControl, InputLabel, Typography } from '@mui/material';
+import {Button, Select, MenuItem, FormControl, InputLabel, Typography } from '@mui/material';
+import { LegendToggle } from "@mui/icons-material";
 
 
 const MapPage = () => {
 	const [data, setData] = useState([]);
+	const [originalData, setOriginalData] = useState([]); // store original county data
 	const [geoJsonData, setGeoJsonData] = useState([]);
 	const [popupInfo, setPopupInfo] = useState(null);
-    const [year, setYear] = useState(2020);
+	const [usePrediction, setUsePrediction] = useState(false);
+	const [selectedModel, setSelectedModel] = useState('');
+	const [models, setModels] = useState([]);
+	const [year, setYear] = useState(2020);
 	const mapRef = useRef(null);
-    const [predictions, setPredictions] = useState([]); 
-	const [countyDataCache, setCountyDataCache] = useState({});
     const [fillLayerStyle, setFillLayerStyle] = useState({ id: 'county-fill',
     type: 'fill',
     paint: {
@@ -26,140 +29,208 @@ const MapPage = () => {
         'fill-opacity': 0.2,
     }})
 
-	useEffect(() =>{
-        const fetchData = async () => {
-		let currentData;
-		if (countyDataCache[year]) {
-			currentData = countyDataCache[year];
-			setData(currentData);
-		} 
-		else {
-			let res = await axios({
-				method: 'get',
-				url: 'http://localhost:3000/db/counties/'+ year.toString(),
-			})
-            currentData = res.data;
-            setCountyDataCache(prev => ({ ...prev, [year]: currentData }));
-            setData(currentData);
-		}	
-        let paintLayerArray = ['match', ['get', 'GEOID']]
-        currentData.map((county) => {
-            if(county.winner === 0){
-            paintLayerArray.push(county.state_county.toString(), 'blue')
-            }
-            else{
-                paintLayerArray.push(county.state_county.toString(), 'red')
-            }
-        })
-        paintLayerArray.push('grey')
-        setFillLayerStyle({...fillLayerStyle, paint: {'fill-color': paintLayerArray, 'fill-opacity': 0.2}});
+	useEffect(() => {
+		axios.get('http://localhost:3000/db/geojson')
+		  .then((response) => {
+			setGeoJsonData(response.data[0]);
+		  });
+	  }, []);
 
-    }
-    console.log(year)
-    fetchData();
-}, [year, countyDataCache]);
 
-    useEffect(() =>{
-        // console.log("useEffect")
-        axios({
-            method: 'get',
-            url: 'http://localhost:3000/db/geojson',
-          })
-            .then((response) => {
-                setGeoJsonData(response.data[0])
-            });
-    }
-    ,[])
-  
+
+	  useEffect(() => {
+		axios.get(`http://localhost:3000/db/counties/${year}`)
+		  .then(response => setOriginalData(response.data)); // fetch and store original data
+	  }, [year]);
+
+	
+	  useEffect(() => {
+		if (usePrediction && selectedModel) {
+		  axios.get(`http://localhost:3000/db/prediction/${selectedModel}`)
+			.then(response => setData(response.data));
+		} else {
+		  setData(originalData);
+		}
+	  }, [originalData, selectedModel, usePrediction]);
+	  
+	  
+	  useEffect(() => {
+		updateMapColors(data); // update map colors whenever prediction data changes
+	  }, [data]);
+	  
+	  const updateMapColors = (dataToColor) => {
+		if (!dataToColor) {
+		  console.log("No data provided to color");
+		  return;
+		}
+	  
+		let paintLayerArray = ['match', ['get', 'GEOID']];
+		dataToColor.forEach(county => {
+		  if (county && county.state_county) { // state_county is fips for actual data
+			let color;
+			if (county.winner === 0) {
+			  color = 'blue'; // Fully blue
+			} else if (county.winner === 1) {
+			  color = 'red'; // Fully red
+			} else {
+			  // interpolate colors based on the value of 'winner'
+			  if (county.winner <= 0.5) {
+				const intensity = Math.round(255 * (0.5 - county.winner) * 2);
+				color = `rgb(0, 0, ${255 - intensity})`; // Darker blue as it approaches 0
+			  } else {
+				const intensity = Math.round(255 * (county.winner - 0.5) * 2);
+				color = `rgb(${intensity}, 0, 0)`; // Darker red as it approaches 1
+			  }
+			}
+			paintLayerArray.push(county.state_county.toString(), color);
+		  }
+		  else if (county && county.county_fips) { // county_fips is fips for prediction data
+			let color;
+			if (county.prediction === 0) {
+			  color = 'blue'; // Fully blue
+			} else if (county.prediction === 1) {
+			  color = 'red'; // Fully red
+			} else {
+			  // Interpolate colors based on the value of 'prediction'
+			  if (county.prediction <= 0.5) {
+				const intensity = Math.round(255 * (0.5 - county.prediction) * 10);
+				color = `rgb(0, 0, ${intensity})`;
+			  } else {
+				const intensity = Math.round(255 * (county.prediction - 0.5) * 10);
+				color = `rgb(${intensity}, 0, 0)`;
+			  }
+			}
+			paintLayerArray.push(county.county_fips.toString(), color);
+		  }
+		  else {
+			console.log("Missing 'state_county' or 'winner' in county data", county);
+		  }
+		});
+		paintLayerArray.push('grey'); // Default color for unmatched GEOID
+
+		setFillLayerStyle({
+		  ...fillLayerStyle,
+		  paint: { 'fill-color': paintLayerArray, 'fill-opacity': 0.4 }
+		});
+	  };
+	  
+	  
+	  useEffect(() => {
+		if (usePrediction) {
+		  axios.get('http://localhost:3000/db/prediction/models')
+			.then(res => {
+			  setModels(res.data);
+			  if (res.data.length > 0) {
+				setSelectedModel(res.data[0]);  // automatically select the first model
+			  }
+			});
+		} else {
+		  setSelectedModel('');  // clear model selection when not in prediction mode
+		}
+	  }, [usePrediction]);
+	  
+
+	  useEffect(() => {
+		const fetchYear = usePrediction ? extractYearFromModel(selectedModel) : year;
+		axios.get(`http://localhost:3000/db/counties/${fetchYear}`)
+		  .then(response => {
+			setOriginalData(response.data);
+		  });
+	  }, [year, selectedModel, usePrediction]);
+	
+	  const handleYearChange = (e) => {
+		setYear(e.target.value);
+	  };
+	
+	  const handleModelChange = (e) => {
+		setSelectedModel(e.target.value);
+	  };
+	
+	  const handleTogglePrediction = () => {
+		setUsePrediction(!usePrediction);
+	  };
+
+	  const extractYearFromModel = (modelName) => {
+		return modelName.split('_')[1];
+	  };
+	
+	  
+	
 	const layerStyle = {
-	  id: 'county-boundaries',
-	  type: 'line',
-	  paint: {
+	id: 'county-boundaries',
+	type: 'line',
+	paint: {
 		'line-width': 0.8,
 		'line-color': '#a0a0a0',
-	  },
+	},
 	};
-	
+
+		
 	const handleMouseMove = (e) => {
 		if (!mapRef.current) return;
 		const map = mapRef.current.getMap();
 		const features = map.queryRenderedFeatures(e.point, { layers: ['county-fill'] });
+	
 		if (features.length > 0) {
-			const feature = features[0];
-			const countyFIPS = feature.properties.GEOID;
-			const detailsForYear = data.find(county => county.state_county.toString() === countyFIPS);
-			if (detailsForYear) {
-				setPopupInfo({
-					details: detailsForYear,
-					longitude: e.lngLat.lng,
-					latitude: e.lngLat.lat,
-					countyName: feature.properties.NAME,
-				});
-
-			} else {
-				setPopupInfo(null);
-			}
-		} else {
+		  const feature = features[0];
+		  const countyFIPS = feature.properties.GEOID;
+		  const detailsForYear = originalData.find(county => county.state_county && county.state_county.toString() === countyFIPS);
+		  
+		  if (detailsForYear) {
+			setPopupInfo({
+			  details: detailsForYear,
+			  longitude: e.lngLat.lng,
+			  latitude: e.lngLat.lat,
+			  countyName: feature.properties.NAME,
+			});
+		  } else {
 			setPopupInfo(null);
+		  }
+		} else {
+		  setPopupInfo(null);
 		}
-	};
-	
-	
-	const handleYearChange = (e) => {
-		setYear(e.target.value);
 	  };
-	  
 
+	
 	return (
 		<div style={{ width: "100vw", height: "95vh"}}>
-		<FormControl 
-		  variant="outlined" 
-		  sx={{ 
-			position: 'absolute', 
-			top: '3%', 
-			left: '20%', 
-			minWidth: 120, 
-			'.MuiOutlinedInput-root': { 
-			  color: 'white', 
-			  '& fieldset': { borderColor: 'white' }, 
-			  '&:hover fieldset': { borderColor: 'white' }, 
-			  '&.Mui-focused fieldset': { borderColor: 'white' }, 
-			},
-			'.MuiInputLabel-root': { 
-			  color: 'white', 
-			  '&.Mui-focused': { color: 'white' }
-			},
-		  }}
-		>
-		  <InputLabel id="year-select-label" shrink htmlFor="year-select">
-			Year
-		  </InputLabel>
-		  <Select
-			labelId="year-select-label"
-			id="year-select"
-			value={year}
-			onChange={handleYearChange}
-			label="Year"
-			renderValue={(selected) => `${selected}`}
-			sx={{
-			  '& .MuiSelect-select': { 
-				color: 'white', 
-				paddingTop: '5px', // Decrease top padding
-				paddingBottom: '5px', // Decrease bottom padding
-				paddingLeft: '5px', // Adjust left padding as needed
-				paddingRight: '5px', // Adjust right padding as needed
-				'&:focus': { backgroundColor: "transparent" }
-			  },
-			  '.MuiSvgIcon-root': { color: 'white' }
-			}}
-		  >
-			{[...Array((2020 - 2008) / 4 + 1)].map((_, i) => (
-			  <MenuItem key={i} value={2008 + i * 4}>
-				{2008 + i * 4}
-			  </MenuItem>
-			))}
-		  </Select>
-		</FormControl>
+		  <Button onClick={handleTogglePrediction} style={{ position: 'absolute', top: 130, left: 10, zIndex: 1000 }}>
+			{usePrediction ? 'Show Actual Data' : 'Show Prediction Data'}
+		  </Button>
+		  <FormControl style={{ position: 'absolute', top: 80, left: 10, zIndex: 1000 }}>
+			{usePrediction ? (
+			  <div>
+				<InputLabel id="model-label">Prediction Model</InputLabel>
+				<Select
+				  labelId="model-label"
+				  value={selectedModel}
+				  onChange={handleModelChange}
+				  displayEmpty
+				  fullWidth
+				>
+				  <MenuItem value=""><em>None</em></MenuItem>
+				  {models.map(model => (
+					<MenuItem key={model} value={model}>{model}</MenuItem>
+				  ))}
+				</Select>
+			  </div>
+			) : (
+			  <div>
+				<InputLabel id="year-select-label">Year</InputLabel>
+				<Select
+				  labelId="year-select-label"
+				  id="year-select"
+				  value={year}
+				  onChange={handleYearChange}
+				  fullWidth
+				>
+				  {[2020, 2016, 2012, 2008].map(yearOption => (
+					<MenuItem key={yearOption} value={yearOption}>{yearOption}</MenuItem>
+				  ))}
+				</Select>
+			  </div>
+			)}
+		  </FormControl>
 		<Map
 		  ref={mapRef}
 		  initialViewState={{

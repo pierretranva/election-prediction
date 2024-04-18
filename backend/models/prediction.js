@@ -1,5 +1,5 @@
 // Import mongoose library
-import { mongoose, Schema } from "mongoose";
+import mongoose from "mongoose";
 import { predictionDb } from "../connection.js";
 
 // Schema for data from csv file
@@ -8,12 +8,16 @@ const predictionSchema = new mongoose.Schema({
     county_fips: Number,
     winner: Number,
     prediction: Number
-});
+}, { collection: 'placeholder' }); 
 
-// Export schema
+const modelCache = {};
+
+// Function to get or create a model for a specific collection
 const getPredictionModel = (collectionName) => {
-const predictionData = predictionDb.model(collectionName, predictionSchema);
-return predictionData;
+    if (!modelCache[collectionName]) {
+        modelCache[collectionName] = predictionDb.model(collectionName, predictionSchema, collectionName);
+    }
+    return modelCache[collectionName];
 }
 
 export default getPredictionModel;

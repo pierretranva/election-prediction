@@ -12,8 +12,4 @@ const userDb = mongoose.createConnection(process.env.MOGNO_URI + "user?retryWrit
 const predictionDb = mongoose.createConnection(process.env.MOGNO_URI + "prediction?retryWrites=true&w=majority");
 
 
-
-
-
-
-export { geojsonDb, countiesDb, userDb };
+export { geojsonDb, countiesDb, userDb, predictionDb };
