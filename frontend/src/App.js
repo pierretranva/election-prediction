@@ -75,7 +75,7 @@ const [sidebarOpen, setSidebarOpen] = useState(false);
                 <Route path="register" element={<RegisterPage handleRegister={handleRegisterSuccess}/>} />
                 <Route path="data" element={<></>} />
 				<Route path="about-us" element={<AboutUs/>} />
-				<Route path="/trends" element={<Trends/>}/>
+				<Route path="trends/:countyFIPS/:countyName" element={<Trends/>}/>
 			</Routes>
 		</>
 	);
