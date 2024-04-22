@@ -69,7 +69,7 @@ const [sidebarOpen, setSidebarOpen] = useState(false);
         <NavBar toggleSidebar={toggleSidebar} isLogin={signedIn} ></NavBar>
         <Sidebar toggleSidebar={toggleSidebar} handleLogout={handleLogout} isOpen={sidebarOpen} onClose={toggleSidebar} />
 			<Routes>
-				<Route path="/" element={<MapPage/>} /> 
+				<Route path="/" element={<AboutUs/>} /> 
 				<Route path="map" element={<MapPage/>} />
                 <Route path="login" element={<LoginPage loggedIn={signedIn} signIn={handleSignIn}  />} />
                 <Route path="admin" element={<ImportPage loggedIn={signedIn} user={user}/>} />

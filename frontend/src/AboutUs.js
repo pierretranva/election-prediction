@@ -44,7 +44,7 @@ const AboutUs = () => {
                 Danny Chung
             </Typography>
             <Typography variant="body1"  paragraph>
-                [stuff about the team]
+                This project is part of a capstone for the Computer Science program at Virginia Tech. The team is responsible for the design, development, and deployment of the website.
             </Typography>
         </div>
     );

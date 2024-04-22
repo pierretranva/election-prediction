@@ -6,7 +6,7 @@ import axios from 'axios';
 import {Button, Select, MenuItem, FormControl, InputLabel, Typography } from '@mui/material';
 import { LegendToggle } from "@mui/icons-material";
 import Trends from './Trends'
-import { NavLink } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const MapPage = () => {
 	const [data, setData] = useState([]);
@@ -18,6 +18,7 @@ const MapPage = () => {
 	const [models, setModels] = useState([]);
 	const [year, setYear] = useState(2020);
 	const mapRef = useRef(null);
+	const navigate = useNavigate();
     const [fillLayerStyle, setFillLayerStyle] = useState({ id: 'county-fill',
     type: 'fill',
     paint: {
@@ -191,9 +192,30 @@ const MapPage = () => {
 		  setPopupInfo(null);
 		}
 	  };
+    
+    const handleMouseClick = (e) =>
+    {
+        if (!mapRef.current) return;
+		const map = mapRef.current.getMap();
+		const features = map.queryRenderedFeatures(e.point, { layers: ['county-fill'] });
+	
+		if (features.length > 0) {
+		  const feature = features[0];
+		  const countyFIPS = feature.properties.GEOID;
+		  const detailsForYear = originalData.find(county => county.state_county && county.state_county.toString() === countyFIPS);
+		  
+		  if (detailsForYear) {
+			console.log("Clicked on: ", detailsForYear);
+            navigate(`/trends/${countyFIPS}/${feature.properties.NAME}`);
+          }
+		}
+    }
+    useEffect(() => {
+        console.log(popupInfo)
+    })
 	
 	return (
-		<div style={{ width: "100vw", height: "95vh"}}>
+		<div style={{ width: "100vw", height: "93vh"}}>
 		  <Button onClick={handleTogglePrediction} style={{ position: 'absolute', top: 130, left: 10, zIndex: 1000 }}>
 			{usePrediction ? 'Show Actual Data' : 'Show Prediction Data'}
 		  </Button>
@@ -242,6 +264,7 @@ const MapPage = () => {
 		  mapStyle="mapbox://styles/mapbox/light-v10?optimize=true" // tried to make it less laggy idk if optimize works
 		  mapboxAccessToken="pk.eyJ1IjoiYnJ5YW50cmFudiIsImEiOiJjbHN4d2ZuNmswN2pzMmtvMjl2dXV0enhoIn0.HDphbK-ps-z2N3sjQbiDaQ"
 		  onMouseMove={handleMouseMove}
+          onClick={handleMouseClick}
 		>
 		  {geoJsonData && (
 			<Source type="geojson" data={geoJsonData}>
@@ -258,7 +281,7 @@ const MapPage = () => {
 			  anchor="top"
 			>
 			  <p><strong>Year: </strong>{popupInfo.details.year}</p>
-			  <p><strong>County: </strong>{popupInfo.countyName}</p>
+			  <p><strong>County: </strong>{popupInfo.countyName}, {popupInfo.details.state_po}</p>
 			  <p><strong>Average Annual Family Income: </strong>${popupInfo.details.avg_ann_income_family}</p>
 			  <p><strong>Male: </strong>{popupInfo.details.males_percent}%</p>
 			  <p><strong>Female: </strong>{popupInfo.details.females_percent}%</p>
@@ -266,7 +289,6 @@ const MapPage = () => {
 			  <p><strong>Employed: </strong>{popupInfo.details.employed_percent}%</p>
 			  <p><strong>Some college/Bachelor's: </strong>{popupInfo.details.some_college_or_bachelor_percent}%</p>
 			  <p><strong>High School or Lower Education: </strong>{popupInfo.details.high_school_or_lower_education_percent}%</p>
-			  <NavLink to={`/trends/${popupInfo.details.state_county}/${popupInfo.countyName}`}>Trends</NavLink>
 
 			</Popup>
 	

@@ -36,13 +36,14 @@ router.route("/prediction/models").get(async (req, res) => {
             collections_list.push(i.name);
         });
         collections_list.sort(); // Sort the list of collection names
+
         res.json(collections_list);
 });
 
 // get specific prediction model
 router.route("/prediction/:model").get(async (req, res) => {
 	let response = await getPredictionModel(req.params.model).find().exec();
-	console.log(response);
+	// console.log(response);
     res.json(response);
 });
 

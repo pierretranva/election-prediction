@@ -13,7 +13,7 @@ import { Link } from 'react-router-dom';
 export default function NavBar({toggleSidebar, isLogin}) {
 
   return (
-    <Box sx={{ flexGrow: 1 }}>
+    <Box sx={{ flexGrow: 1}}>
       <AppBar position="static">
         <Toolbar sx={{ justifyContent: 'space-between' }}>
           <IconButton
@@ -27,7 +27,7 @@ export default function NavBar({toggleSidebar, isLogin}) {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" component="div" sx={{ textAlign: 'center', flexGrow: 1 }}>
-            2024 Presidential Election Prediction
+            Presidential Election Prediction
           </Typography>
           {!isLogin ? <Button color="inherit" component={Link} to="/login">
           Login
