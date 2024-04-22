@@ -15,7 +15,6 @@
     "axios": "^1.6.8",
     "chart.js": "^4.4.2",
     "chartjs-adapter-date-fns": "^3.0.0",
-    "i": "^0.3.7",
     "mapbox-gl": "^3.1.2",
     "mui-file-dropzone": "^4.0.2",
     "npm": "^10.5.2",

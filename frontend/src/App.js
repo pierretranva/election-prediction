@@ -77,6 +77,7 @@ const [sidebarOpen, setSidebarOpen] = useState(false);
                 <Route path="data" element={<></>} />
 				<Route path="trends" element={<Trends/>} />
 				<Route path="about-us" element={<AboutUs/>} />
+				<Route path="trends/:countyFIPS/:countyName" element={<Trends/>}/>
 			</Routes>
 		</>
 	);

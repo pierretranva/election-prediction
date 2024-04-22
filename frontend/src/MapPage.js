@@ -1,11 +1,12 @@
-import React, { useState, useEffect, useRef} from "react";
+import React, { useState, useEffect, useRef, createContext, useContext} from "react";
 import { Route, Routes} from "react-router-dom";
 import { Map, FullscreenControl, Popup, Marker, Source, Layer } from "react-map-gl";
 import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 import axios from 'axios';
 import {Button, Select, MenuItem, FormControl, InputLabel, Typography } from '@mui/material';
 import { LegendToggle } from "@mui/icons-material";
-
+import Trends from './Trends'
+import { NavLink } from "react-router-dom";
 
 const MapPage = () => {
 	const [data, setData] = useState([]);
@@ -190,7 +191,6 @@ const MapPage = () => {
 		  setPopupInfo(null);
 		}
 	  };
-
 	
 	return (
 		<div style={{ width: "100vw", height: "95vh"}}>
@@ -266,10 +266,16 @@ const MapPage = () => {
 			  <p><strong>Employed: </strong>{popupInfo.details.employed_percent}%</p>
 			  <p><strong>Some college/Bachelor's: </strong>{popupInfo.details.some_college_or_bachelor_percent}%</p>
 			  <p><strong>High School or Lower Education: </strong>{popupInfo.details.high_school_or_lower_education_percent}%</p>
+			  <NavLink to={`/trends/${popupInfo.details.state_county}/${popupInfo.countyName}`}>Trends</NavLink>
+
 			</Popup>
-		  )}
+	
+		  )
+		  }
 		</Map>
+
 	  </div>
+
 	);
   };
   
