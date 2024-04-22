@@ -8,7 +8,8 @@ import NavBar from "./Navbar";
 import Sidebar from "./Sidebar";
 import AboutUs from "./AboutUs";
 import ImportPage from "./ImportPage";
-import Trends from "./Trends"
+import Trends from "./Trends";
+
 
 const App = () => {
 
@@ -70,10 +71,11 @@ const [sidebarOpen, setSidebarOpen] = useState(false);
 			<Routes>
 				<Route path="/" element={<MapPage/>} /> 
 				<Route path="map" element={<MapPage/>} />
-                <Route path="login" element={<LoginPage signIn={handleSignIn}  />} />
+                <Route path="login" element={<LoginPage loggedIn={signedIn} signIn={handleSignIn}  />} />
                 <Route path="admin" element={<ImportPage loggedIn={signedIn} user={user}/>} />
                 <Route path="register" element={<RegisterPage handleRegister={handleRegisterSuccess}/>} />
                 <Route path="data" element={<></>} />
+				<Route path="trends" element={<Trends/>} />
 				<Route path="about-us" element={<AboutUs/>} />
 				<Route path="trends/:countyFIPS/:countyName" element={<Trends/>}/>
 			</Routes>

@@ -2,11 +2,14 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import bcrypt from "bcrypt";
-import { geojsonDb, countiesDb } from "./connection.js";
+import { geojsonDb, countiesDb, predictionDb } from "./connection.js";
 import { default as geojsonSchema } from "./models/geojson.js";
 import { default as userSchema } from "./models/user.js";
 import { default as getCountyModel } from "./models/countyData.js";
+import { default as getPredictionModel } from "./models/prediction.js";
 import dotenv from "dotenv";
+import multer from "multer"
+import { parseAndSaveCountyData, praseAndSavePredictionData, checkCountyFileFormat, checkPredictionFileFormat } from "./parsers/excelParser.js";
 dotenv.config();
 
 // Set the web server
@@ -24,10 +27,31 @@ app.get(
 const router = express.Router();
 app.use("/db", router);
 
+// get all available prediction models
+router.route("/prediction/models").get(async (req, res) => {
+        // Retrieve all collections in the prediction database
+        let collections_res = await predictionDb.listCollections();
+        let collections_list = [];
+        collections_res.forEach((i) => { 
+            collections_list.push(i.name);
+        });
+        collections_list.sort(); // Sort the list of collection names
+        res.json(collections_list);
+});
+
+// get specific prediction model
+router.route("/prediction/:model").get(async (req, res) => {
+	let response = await getPredictionModel(req.params.model).find().exec();
+	console.log(response);
+    res.json(response);
+});
+
+
+
 //get geojson data
 router.route("/geojson").get(async (req, res) => {
 	let response = await geojsonSchema.find().exec();
-	console.log(response);
+	// console.log(response);
 	res.json(response);
 });
 //insert geojson data
@@ -41,7 +65,6 @@ router.route("/user/register").post((req, res) => {
 	userSchema.find({ username: req.body.username }).then((item) => {
 		if (item.length != 0) {
 			res.status(401).json("Username already used");
-			console.log("trying to duplicate thing");
 			res.end();
 			return;
 		} else {
@@ -94,14 +117,14 @@ router.route("/county/:county").get(async (req, res) => {
 				.exec();
 			all_years_data.push(response);
 		}
-		console.log(all_years_data);
+		// console.log(all_years_data);
 
 		res.json(all_years_data);
 	} else {
 		let response = await getCountyModel("year_" + req.query.year)
 			.find({ state_county: parseInt(req.params.county) })
 			.exec();
-		console.log(response);
+		// console.log(response);
 		res.json(response);
 	}
 });
@@ -112,9 +135,50 @@ router.route("/counties/:year").get(async (req, res) => {
 	let response = await getCountyModel("year_" + req.params.year)
 		.find()
 		.exec();
-	console.log(response);
+	// console.log(response);
 	res.json(response);
 });
 
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, 'uploads/')
+    },
+    filename: function (req, file, cb) {
+      cb(null, file.originalname)
+    }
+  })
+const upload = multer({storage: storage}) 
+
+  router.post("/upload", upload.single("file"), async (req, res) => {
+    // console.log(req.body);
+    // console.log(req.file);
+    if(req.body.fileType === 'county')
+    {
+        if(!checkCountyFileFormat(req.file.path))
+        {
+            res.status(400).json({ message: "Invalid file format for county data" });
+            return
+        }
+    
+     await parseAndSaveCountyData(req.file.path)
+    }
+    else if(req.body.fileType === 'prediction' )
+    {
+        if(!checkPredictionFileFormat(req.file.path))
+        {
+            res.status(400).json({ message: "Invalid file format for prediction" });
+            return
+        }
+       await praseAndSavePredictionData(req.file.path, req.body.algName)
+    }
+    else {
+        res.status(400).json({ message: "Invalid file type" });
+        return;
+    }
+    res.json({ message: "Successfully uploaded files" });
+   
+  });
+  
 const port = process.env.PORT;
 app.listen(port, () => console.log(`Hello world app listening on port ${port}!`));
