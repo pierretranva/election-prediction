@@ -48,8 +48,7 @@ const countyDataSchema = new mongoose.Schema({
     liberitarian: Number,
     other: Number,
     republican: Number,
-    winner: Number,
-    prediction: Number
+    winner: Number
 });
 
 // Export schema
