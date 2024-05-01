@@ -3,8 +3,8 @@ import Chart from 'chart.js/auto';
 import 'chartjs-adapter-date-fns';
 
 const LineGraph = ({data, variable}) => {
-    console.log(data)
-    console.log(variable)
+    // console.log(data)
+    // console.log(variable)
     const yValues = []
     let yVar = ""
     switch (variable) {

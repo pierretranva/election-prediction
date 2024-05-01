@@ -12,7 +12,7 @@ const Trends = () => {
     console.log(countyName)
     useEffect(() => {
         const fetchDataForCounty = async (year) => {
-            const response = await axios.get(`http://localhost:3000/db/county/${countyFIPS}`);
+            const response = await axios.get(`${process.env.REACT_APP_API_URL}/db/county/${countyFIPS}`);
             setYearsData(response);
         };
 

@@ -1,7 +1,10 @@
 import xlsx from "xlsx"; // Import the xlsx library for reading Excel files
 import mongoose, { disconnect } from "mongoose"; // Import mongoose for MongoDB interaction
-
-
+import {countiesDb, predictionDb, geojsonDb} from "../connection.js"
+import dotenv from 'dotenv'
+dotenv.config()
+//this is used to convert the column names in the excel file to the entry names in the database
+//if you add another entry to the database, add it here, you may also need to add it to the countyData schema
 const data_dict = {
     "year": "year",
     "county_fips": "county_fips",
@@ -60,12 +63,6 @@ async function parseAndSaveCountyData(filename) {
 		// Convert the Excel data to JSON format
 		const jsonData = xlsx.utils.sheet_to_json(sheet);
 
-		// Connect to MongoDB using the provided URI/
-		await mongoose.connect('mongodb+srv://admin:admin@cluster0.uspafmk.mongodb.net/counties', {
-		    useNewUrlParser: true,
-		    useUnifiedTopology: true
-		});
-
 		// Iterate over each line (county) of data
 		for (const line of jsonData) {
 
@@ -83,7 +80,7 @@ async function parseAndSaveCountyData(filename) {
 
 
 			// Retrieve the collection
-			const collection = mongoose.connection.db.collection(collectionName);
+			const collection = countiesDb.collection(collectionName);
 
 			// Check if data exists for the specified year and county number
 			const existingData = await collection.findOne({ year, state_county });
@@ -120,10 +117,10 @@ async function praseAndSavePredictionData(filename, algName)
 		const jsonData = xlsx.utils.sheet_to_json(sheet);
 
 		// Connect to MongoDB using the provided URI/
-		await mongoose.connect('mongodb+srv://admin:admin@cluster0.uspafmk.mongodb.net/prediction', {
-		    useNewUrlParser: true,
-		    useUnifiedTopology: true
-		});
+		// await mongoose.connect(`${process.env.MONGO_URI}prediction`, {
+		//     useNewUrlParser: true,
+		//     useUnifiedTopology: true
+		// });
 
 		// Iterate over each line (county) of data
 		for (const line of jsonData) {
@@ -138,7 +135,7 @@ async function praseAndSavePredictionData(filename, algName)
 
 
 			// Retrieve the collection
-			const collection = mongoose.connection.db.collection(collectionName);
+			const collection = predictionDb.collection(collectionName);
 
 			// Check if data exists for the specified year and county number
 			const existingData = await collection.findOne({ year, state_county });
@@ -161,6 +158,19 @@ async function praseAndSavePredictionData(filename, algName)
 		// Disconnect from MongoDB after saving all data
 		// await mongoose.disconnect();
 	}
+}
+async function inputGeojson(geojsonObj)
+{
+    try{
+
+        const collection = geojsonDb.collection("geojsons");
+        await collection.insertOne(geojsonObj);
+        console.log("inserted geosjon object into database")
+    }
+    catch(error)
+    {
+        console.error("Error:", error);
+    }
 }
 
 function checkPredictionFileFormat(filename)
@@ -202,11 +212,4 @@ function checkCountyFileFormat(filename)
     }
 }
 
-// Call the function with the filename of the Excel file
-// parseAndSaveCountyData("data_shared.xlsx");
-
-// praseAndSavePredictionData("probit_predictions.xlsx", "probit")
-
-// console.log(checkCountyFileFormat("probit_predictions.xlsx"))
-
-export {parseAndSaveCountyData, praseAndSavePredictionData, checkCountyFileFormat, checkPredictionFileFormat};
+export {parseAndSaveCountyData, praseAndSavePredictionData, checkCountyFileFormat, checkPredictionFileFormat, inputGeojson};

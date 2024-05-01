@@ -46,7 +46,7 @@ const LoginPage = (props) => {
     console.log('Logging in with credentials:', credentials);
     // Example: fetch('/login', { method: 'POST', body: JSON.stringify(credentials) })
 
-   let res = axios.post("http://localhost:3000/db/user/login",{username: credentials.username, password: credentials.password} )
+   let res = axios.post(`${process.env.REACT_APP_API_URL}/db/user/login`,{username: credentials.username, password: credentials.password} )
 
    res.then((response) => {
         console.log(response)

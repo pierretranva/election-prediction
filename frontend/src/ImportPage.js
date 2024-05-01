@@ -50,7 +50,7 @@ const ImportPage = (props) => {
 
 		try {
             setLoading(true);
-			const response = await axios.post("http://localhost:3000/db/upload", formData, {
+			const response = await axios.post(`${process.env.REACT_APP_API_URL}/db/upload`, formData, {
 				headers: {
 					"Content-Type": "multipart/form-data",
 				},

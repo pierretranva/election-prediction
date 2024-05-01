@@ -44,7 +44,7 @@ const RegisterPage = (props) => {
     // Example: fetch('/login', { method: 'POST', body: JSON.stringify(credentials) })
     axios({
         method: 'post',
-        url: "http://localhost:3000/db/user/register",
+        url: `${process.env.REACT_APP_API_URL}/db/user/register`,
         data: {username: credentials.username, password: credentials.password, email: credentials.email}
     })
     .then((response)=> {

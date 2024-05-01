@@ -32,7 +32,7 @@ const MapPage = () => {
     }})
 
 	useEffect(() => {
-		axios.get('http://localhost:3000/db/geojson')
+		axios.get(`${process.env.REACT_APP_API_URL}/db/geojson`)
 		  .then((response) => {
 			setGeoJsonData(response.data[0]);
 		  });
@@ -41,14 +41,14 @@ const MapPage = () => {
 
 
 	  useEffect(() => {
-		axios.get(`http://localhost:3000/db/counties/${year}`)
+		axios.get(`${process.env.REACT_APP_API_URL}/db/counties/${year}`)
 		  .then(response => setOriginalData(response.data)); // fetch and store original data
 	  }, [year]);
 
 	
 	  useEffect(() => {
 		if (usePrediction && selectedModel) {
-		  axios.get(`http://localhost:3000/db/prediction/${selectedModel}`)
+		  axios.get(`${process.env.REACT_APP_API_URL}/db/prediction/${selectedModel}`)
 			.then(response => setData(response.data));
 		} else {
 		  setData(originalData);
@@ -119,7 +119,7 @@ const MapPage = () => {
 	  
 	  useEffect(() => {
 		if (usePrediction) {
-		  axios.get('http://localhost:3000/db/prediction/models')
+		  axios.get(`${process.env.REACT_APP_API_URL}/db/prediction/models`)
 			.then(res => {
 			  setModels(res.data);
 			  if (res.data.length > 0) {
@@ -134,7 +134,7 @@ const MapPage = () => {
 
 	  useEffect(() => {
 		const fetchYear = usePrediction ? extractYearFromModel(selectedModel) : year;
-		axios.get(`http://localhost:3000/db/counties/${fetchYear}`)
+		axios.get(`${process.env.REACT_APP_API_URL}/db/counties/${fetchYear}`)
 		  .then(response => {
 			setOriginalData(response.data);
 		  });
@@ -262,7 +262,7 @@ const MapPage = () => {
 		  }}
 		  style={{ width: "100%", height: "100%" }}
 		  mapStyle="mapbox://styles/mapbox/light-v10?optimize=true" // tried to make it less laggy idk if optimize works
-		  mapboxAccessToken="pk.eyJ1IjoiYnJ5YW50cmFudiIsImEiOiJjbHN4d2ZuNmswN2pzMmtvMjl2dXV0enhoIn0.HDphbK-ps-z2N3sjQbiDaQ"
+		  mapboxAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
 		  onMouseMove={handleMouseMove}
           onClick={handleMouseClick}
 		>
